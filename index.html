@@ -127,13 +127,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">4</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -155,6 +155,230 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://yuanyongliang1.github.io/2024/02/21/redisPersistence/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/photo.jpg">
+      <meta itemprop="name" content="Mr.yuan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="永夜">
+      <meta itemprop="description" content="心有所向，无问东西">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | 永夜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2024/02/21/redisPersistence/" class="post-title-link" itemprop="url">redisPersistence</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2024-02-21 15:21:32 / 修改时间：15:34:55" itemprop="dateCreated datePublished" datetime="2024-02-21T15:21:32+08:00">2024-02-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/redis%E6%8C%81%E4%B9%85%E5%8C%96/" itemprop="url" rel="index"><span itemprop="name">redis持久化</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>1.6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>1 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h4 id="redis持久化"><a href="#redis持久化" class="headerlink" title="redis持久化"></a>redis持久化</h4><p>redis持久化分为RDB和AOF:</p>
+<p>​	RDB：RDB持久化就是在指定时间间隔内将内存中的数据集快照写入磁盘，也就是<code>snapshot</code>，它恢复时是直接将快照文件直接读到内存里。</p>
+<p>RDB触发的方式有几种：两种，分别是手动触发和自动触发</p>
+<table>
+<thead>
+<tr>
+<th>触发方式</th>
+<th>实现方式</th>
+<th>特性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>手动触发</td>
+<td>save命令</td>
+<td>这个指令会直接阻塞当前redis服务器，直到RDB完成了为止</td>
+</tr>
+<tr>
+<td></td>
+<td>bgsave命令</td>
+<td>主进程fork一个子进程，由子进程完成持久化操作，<br />而主进程继续处理客户端的读写请求，<br />如果需要手动实现持久化，推荐使用这这种方式</td>
+</tr>
+<tr>
+<td>自动触发</td>
+<td>配置redis.conf的save参数</td>
+<td>save 20 3 代表的是在20s内写入3次就进行持久化</td>
+</tr>
+</tbody></table>
+<p><strong>bgsave的工作流程：</strong></p>
+<ul>
+<li>主进程fork出一个子进程，这时候主进程会被阻塞</li>
+<li>子进程创建完成后，<code>redis</code>客户端会输出 <code>Background saving started</code>,这就意味着子进程开始进行持久化操作了	</li>
+<li>子进程持久化完成后会生成一个rdb文件，将本次的rdb文件通过原子替换的方式将上一次备份的rdb文件覆盖</li>
+<li>子进程发送信号通知父进程本次任务完成</li>
+</ul>
+<p><strong>RDB常见的配置参数</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>dbfilename</td>
+<td>指定rdb的文件名</td>
+</tr>
+<tr>
+<td>dir</td>
+<td>指定rdb文件的持久化位置，默认取redis服务端的位置</td>
+</tr>
+<tr>
+<td>rdbcompression</td>
+<td>开启后redis默认使用LZF算法压缩rdb文件，这种方式会消耗CPU，但是压缩后的大小远远小于内存</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p><strong>RDB的优点和缺点：</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>优点</td>
+<td>RDB是一个紧凑的单一文件，很方便传送到另一个远端数据中心，非常适合用于灾难回复<br />在恢复较大的数据集时，RDb方式会更快一些</td>
+</tr>
+<tr>
+<td>缺点</td>
+<td>RDB没办法做到实时持久化，bgsave每次fork子进程都会阻塞，频繁执行成本较高<br />在一定间隔时间做备份，如果redis意外down掉，就会丢失最后一次快照之后的所有修改</td>
+</tr>
+</tbody></table>
+<p><strong>AOF：</strong>默认情况下，redis没有开启AOF，开启配置需要在配置文件中将<code>appendonly</code> 改为 yes，AOF会以日志的形式来记录每个写操作，将Redis执行过的所有指令记录下来，只需追加文件不许修改文件，<code>redis</code>启动时会读取该文件重新构建数据。</p>
+<p><strong>AOF的触发类型：</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th>参数说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">appendfsync always</td>
+<td>同步持久化，每次放生数据变化就会立马写入磁盘，新能比较差但数据完整性比较好</td>
+</tr>
+<tr>
+<td align="left">appendfsync  everysec</td>
+<td>默认推荐，每次异步记录一次</td>
+</tr>
+<tr>
+<td align="left">appendfsync no</td>
+<td>不同步</td>
+</tr>
+</tbody></table>
+<p><strong>配置重写触发机制：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">auto-aof-rewrite-percentage 100</span><br><span class="line">auto-aof-rewrite-min-size 64mb</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数说明：</strong>当AOF文件大小是上一次大小的一倍并且大于64mb时触发</p>
+<p><strong>根据AOF恢复数据：</strong></p>
+<p>正常情况下，将<code>appendonly.aof</code>文件复制到bin目录下，并且重启<code>redis</code>服务即可，在实际开发中，文件会存储在网络设备上，保障数据高可靠，如果因为某些原因导致<code>appendonly.aof</code>文件格式异常，从而导致数据还原失败，可以通过命令<code>redis-check-aof --fix appendonly.aof</code>进行修复</p>
+<p><strong>AOF的重写压缩机制：</strong></p>
+<p>AOF的工作原理将每次写操作追加到文件中，这样文件会出现很多冗余内容，所以redis新增了重写机制</p>
+<p>AOF可以生成一个新的AOF文件，新文件和老文件保存的信息一样，但体积更小，还可以做命令的合并，进而节省了redis的储存空间</p>
+<p><strong>AOF重写流程：</strong></p>
+<ul>
+<li>把主线程的内存拷贝一份给fork出来的<code>bgrewiteaof</code>子进程，这里面包含lredis最新的数据</li>
+<li>子进程将其中的数据进行重写。</li>
+<li>主线程在重写时候维护一个AOF重写缓冲区，将重写过程中的写操作记录，计入其中，保证重写后的AOF日志也能记录在重写过程中产生的新数据 </li>
+<li>用新AOF替换老AOF</li>
+</ul>
+<p><strong>AOF的优点和缺点：</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>优点</td>
+<td>数据的完整性和一致性更高</td>
+</tr>
+<tr>
+<td>缺点</td>
+<td>因为AOF记录的内容多，文件只会越来越大，数据恢复也会越来越慢</td>
+</tr>
+</tbody></table>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -194,7 +418,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2024-02-21 14:14:52 / 修改时间：14:44:47" itemprop="dateCreated datePublished" datetime="2024-02-21T14:14:52+08:00">2024-02-21</time>
+      <time title="创建时间：2024-02-21 14:14:52 / 修改时间：15:09:57" itemprop="dateCreated datePublished" datetime="2024-02-21T14:14:52+08:00">2024-02-21</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -539,14 +763,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">6k</span>
+    <span title="站点总字数">7k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">5 分钟</span>
+    <span title="站点阅读时长">6 分钟</span>
   </span>
 </div>
 <div class="busuanzi-count">

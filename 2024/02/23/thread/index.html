@@ -22,28 +22,28 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"yuanyongliang1.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.19.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="redis持久化redis持久化分为RDB和AOF: ​	RDB：RDB持久化就是在指定时间间隔内将内存中的数据集快照写入磁盘，也就是snapshot，它恢复时是直接将快照文件直接读到内存里。 RDB触发的方式有几种：两种，分别是手动触发和自动触发    触发方式 实现方式 特性    手动触发 save命令 这个指令会直接阻塞当前redis服务器，直到RDB完成了为止    bgsave命令 主">
+    <meta name="description" content="进程与线程的区别1、本质不同 进程是资源的分配和调度的一个独立单元，而线程是CPU调度的基本单元。 2、数量不同 同一个进程中可以包括多个线程，并且线程共享整个进程的资源（寄存器、堆栈、上下文），一个进行至少包括一个线程。 3、过程不同 进程的创建调用fork或者vfork，而线程的创建调用pthread_create，进程结束后它拥有的所有线程都将销毁，而线程的结束不会影响同个进程中的其他线程的">
 <meta property="og:type" content="article">
-<meta property="og:title" content="redisPersistence">
-<meta property="og:url" content="https://yuanyongliang1.github.io/2024/02/21/redisPersistence/index.html">
+<meta property="og:title" content="threadLifecycle">
+<meta property="og:url" content="https://yuanyongliang1.github.io/2024/02/23/thread/index.html">
 <meta property="og:site_name" content="永夜">
-<meta property="og:description" content="redis持久化redis持久化分为RDB和AOF: ​	RDB：RDB持久化就是在指定时间间隔内将内存中的数据集快照写入磁盘，也就是snapshot，它恢复时是直接将快照文件直接读到内存里。 RDB触发的方式有几种：两种，分别是手动触发和自动触发    触发方式 实现方式 特性    手动触发 save命令 这个指令会直接阻塞当前redis服务器，直到RDB完成了为止    bgsave命令 主">
+<meta property="og:description" content="进程与线程的区别1、本质不同 进程是资源的分配和调度的一个独立单元，而线程是CPU调度的基本单元。 2、数量不同 同一个进程中可以包括多个线程，并且线程共享整个进程的资源（寄存器、堆栈、上下文），一个进行至少包括一个线程。 3、过程不同 进程的创建调用fork或者vfork，而线程的创建调用pthread_create，进程结束后它拥有的所有线程都将销毁，而线程的结束不会影响同个进程中的其他线程的">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2024-02-21T07:21:32.000Z">
-<meta property="article:modified_time" content="2024-02-23T02:12:34.551Z">
+<meta property="article:published_time" content="2024-02-23T06:12:25.000Z">
+<meta property="article:modified_time" content="2024-02-23T06:18:00.001Z">
 <meta property="article:author" content="Mr.yuan">
-<meta property="article:tag" content="redis持久化">
+<meta property="article:tag" content="线程的生命周期">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://yuanyongliang1.github.io/2024/02/21/redisPersistence/">
+<link rel="canonical" href="https://yuanyongliang1.github.io/2024/02/23/thread/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://yuanyongliang1.github.io/2024/02/21/redisPersistence/","path":"2024/02/21/redisPersistence/","title":"redisPersistence"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://yuanyongliang1.github.io/2024/02/23/thread/","path":"2024/02/23/thread/","title":"threadLifecycle"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>redisPersistence | 永夜</title>
+<title>threadLifecycle | 永夜</title>
   
 
 
@@ -116,7 +116,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#redis%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">1.</span> <span class="nav-text">redis持久化</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">1.</span> <span class="nav-text">进程与线程的区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B9%B6%E8%A1%8C%E4%B8%8E%E4%B8%B2%E8%A1%8C%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">2.</span> <span class="nav-text">并行与串行的区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#java%E5%AE%9E%E7%8E%B0%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%9A%84%E4%B8%89%E7%A7%8D%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">java实现多线程的三种的方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E5%B8%B8%E7%94%A8API"><span class="nav-number">4.</span> <span class="nav-text">线程常用API</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">5.</span> <span class="nav-text">线程的生命周期</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -169,7 +169,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://yuanyongliang1.github.io/2024/02/21/redisPersistence/">
+    <link itemprop="mainEntityOfPage" href="https://yuanyongliang1.github.io/2024/02/23/thread/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/photo.jpg">
@@ -182,12 +182,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="redisPersistence | 永夜">
+      <meta itemprop="name" content="threadLifecycle | 永夜">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          redisPersistence
+          threadLifecycle
         </h1>
 
         <div class="post-meta-container">
@@ -197,15 +197,9 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
+      
 
-      <time title="创建时间：2024-02-21 15:21:32" itemprop="dateCreated datePublished" datetime="2024-02-21T15:21:32+08:00">2024-02-21</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2024-02-23 10:12:34" itemprop="dateModified" datetime="2024-02-23T10:12:34+08:00">2024-02-23</time>
+      <time title="创建时间：2024-02-23 14:12:25 / 修改时间：14:18:00" itemprop="dateCreated datePublished" datetime="2024-02-23T14:12:25+08:00">2024-02-23</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -213,7 +207,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a>
+          <a href="/categories/%E7%BA%BF%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">线程</span></a>
         </span>
     </span>
 
@@ -231,7 +225,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>1.6k</span>
+      <span>1.1k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -248,137 +242,66 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><h4 id="redis持久化"><a href="#redis持久化" class="headerlink" title="redis持久化"></a>redis持久化</h4><p>redis持久化分为RDB和AOF:</p>
-<p>​	RDB：RDB持久化就是在指定时间间隔内将内存中的数据集快照写入磁盘，也就是<code>snapshot</code>，它恢复时是直接将快照文件直接读到内存里。</p>
-<p>RDB触发的方式有几种：两种，分别是手动触发和自动触发</p>
-<table>
+    <div class="post-body" itemprop="articleBody"><h4 id="进程与线程的区别"><a href="#进程与线程的区别" class="headerlink" title="进程与线程的区别"></a>进程与线程的区别</h4><p>1、本质不同</p>
+<p>进程是资源的分配和调度的一个独立单元，而线程是CPU调度的基本单元。</p>
+<p>2、数量不同</p>
+<p>同一个进程中可以包括多个线程，并且线程共享整个进程的资源（寄存器、堆栈、上下文），一个进行至少包括一个线程。</p>
+<p>3、过程不同</p>
+<p>进程的创建调用fork或者vfork，而线程的创建调用pthread_create，进程结束后它拥有的所有线程都将销毁，而线程的结束不会影响同个进程中的其他线程的结束。</p>
+<p>4、属性不同</p>
+<p>线程有自己的私有属性TCB，线程id，寄存器、硬件上下文，而进程也有自己的私有属性进程控制块PCB，这些私有属性是不被共享的，用来标示一个进程或一个线程的标志。</p>
+<h4 id="并行与串行的区别"><a href="#并行与串行的区别" class="headerlink" title="并行与串行的区别"></a>并行与串行的区别</h4><p>串行就是在主线程上按顺序执行逻辑代码</p>
+<p>并行就是多个cpu同时工作来完成多个逻辑</p>
+<h4 id="java实现多线程的三种的方式"><a href="#java实现多线程的三种的方式" class="headerlink" title="java实现多线程的三种的方式"></a>java实现多线程的三种的方式</h4><p>继承Thread类、实现Runnable接口、使用ExecutorService、Callable、Future实现有返回结果的多线程。其中前两种方式线程执行完后都没有返回值，只有最后一种是带返回值的。</p>
+<h4 id="线程常用API"><a href="#线程常用API" class="headerlink" title="线程常用API"></a>线程常用API</h4><table>
 <thead>
 <tr>
-<th>触发方式</th>
-<th>实现方式</th>
-<th>特性</th>
+<th>方法</th>
+<th>名称</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>手动触发</td>
-<td>save命令</td>
-<td>这个指令会直接阻塞当前redis服务器，直到RDB完成了为止</td>
+<td>start()</td>
+<td>启动线程</td>
 </tr>
 <tr>
-<td></td>
-<td>bgsave命令</td>
-<td>主进程fork一个子进程，由子进程完成持久化操作，<br />而主进程继续处理客户端的读写请求，<br />如果需要手动实现持久化，推荐使用这这种方式</td>
+<td>currentThread()</td>
+<td>获取当前线程对象</td>
 </tr>
 <tr>
-<td>自动触发</td>
-<td>配置redis.conf的save参数</td>
-<td>save 20 3 代表的是在20s内写入3次就进行持久化</td>
+<td>getId()</td>
+<td>获取当前线程id</td>
+</tr>
+<tr>
+<td>getName()</td>
+<td>获取当前线程名称</td>
+</tr>
+<tr>
+<td>sleep()</td>
+<td>休眠线程</td>
+</tr>
+<tr>
+<td>stop()</td>
+<td>停止线程 –不安全 –不推荐使用</td>
+</tr>
+<tr>
+<td>setDaemon()</td>
+<td>改变线程状态:true-守护线程:flase-非守护线程</td>
+</tr>
+<tr>
+<td>join()</td>
+<td>线程执行优先级</td>
 </tr>
 </tbody></table>
-<p><strong>bgsave的工作流程：</strong></p>
-<ul>
-<li>主进程fork出一个子进程，这时候主进程会被阻塞</li>
-<li>子进程创建完成后，<code>redis</code>客户端会输出 <code>Background saving started</code>,这就意味着子进程开始进行持久化操作了	</li>
-<li>子进程持久化完成后会生成一个rdb文件，将本次的rdb文件通过原子替换的方式将上一次备份的rdb文件覆盖</li>
-<li>子进程发送信号通知父进程本次任务完成</li>
-</ul>
-<p><strong>RDB常见的配置参数</strong></p>
-<table>
-<thead>
-<tr>
-<th>参数</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>dbfilename</td>
-<td>指定rdb的文件名</td>
-</tr>
-<tr>
-<td>dir</td>
-<td>指定rdb文件的持久化位置，默认取redis服务端的位置</td>
-</tr>
-<tr>
-<td>rdbcompression</td>
-<td>开启后redis默认使用LZF算法压缩rdb文件，这种方式会消耗CPU，但是压缩后的大小远远小于内存</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-</tbody></table>
-<p><strong>RDB的优点和缺点：</strong></p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody><tr>
-<td>优点</td>
-<td>RDB是一个紧凑的单一文件，很方便传送到另一个远端数据中心，非常适合用于灾难回复<br />在恢复较大的数据集时，RDb方式会更快一些</td>
-</tr>
-<tr>
-<td>缺点</td>
-<td>RDB没办法做到实时持久化，bgsave每次fork子进程都会阻塞，频繁执行成本较高<br />在一定间隔时间做备份，如果redis意外down掉，就会丢失最后一次快照之后的所有修改</td>
-</tr>
-</tbody></table>
-<p><strong>AOF：</strong>默认情况下，redis没有开启AOF，开启配置需要在配置文件中将<code>appendonly</code> 改为 yes，AOF会以日志的形式来记录每个写操作，将Redis执行过的所有指令记录下来，只需追加文件不许修改文件，<code>redis</code>启动时会读取该文件重新构建数据。</p>
-<p><strong>AOF的触发类型：</strong></p>
-<table>
-<thead>
-<tr>
-<th align="left">参数</th>
-<th>参数说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">appendfsync always</td>
-<td>同步持久化，每次放生数据变化就会立马写入磁盘，新能比较差但数据完整性比较好</td>
-</tr>
-<tr>
-<td align="left">appendfsync  everysec</td>
-<td>默认推荐，每次异步记录一次</td>
-</tr>
-<tr>
-<td align="left">appendfsync no</td>
-<td>不同步</td>
-</tr>
-</tbody></table>
-<p><strong>配置重写触发机制：</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">auto-aof-rewrite-percentage 100</span><br><span class="line">auto-aof-rewrite-min-size 64mb</span><br></pre></td></tr></table></figure>
-
-<p><strong>参数说明：</strong>当AOF文件大小是上一次大小的一倍并且大于64mb时触发</p>
-<p><strong>根据AOF恢复数据：</strong></p>
-<p>正常情况下，将<code>appendonly.aof</code>文件复制到bin目录下，并且重启<code>redis</code>服务即可，在实际开发中，文件会存储在网络设备上，保障数据高可靠，如果因为某些原因导致<code>appendonly.aof</code>文件格式异常，从而导致数据还原失败，可以通过命令<code>redis-check-aof --fix appendonly.aof</code>进行修复</p>
-<p><strong>AOF的重写压缩机制：</strong></p>
-<p>AOF的工作原理将每次写操作追加到文件中，这样文件会出现很多冗余内容，所以redis新增了重写机制</p>
-<p>AOF可以生成一个新的AOF文件，新文件和老文件保存的信息一样，但体积更小，还可以做命令的合并，进而节省了redis的储存空间</p>
-<p><strong>AOF重写流程：</strong></p>
-<ul>
-<li>把主线程的内存拷贝一份给fork出来的<code>bgrewiteaof</code>子进程，这里面包含lredis最新的数据</li>
-<li>子进程将其中的数据进行重写。</li>
-<li>主线程在重写时候维护一个AOF重写缓冲区，将重写过程中的写操作记录，计入其中，保证重写后的AOF日志也能记录在重写过程中产生的新数据 </li>
-<li>用新AOF替换老AOF</li>
-</ul>
-<p><strong>AOF的优点和缺点：</strong></p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody><tr>
-<td>优点</td>
-<td>数据的完整性和一致性更高</td>
-</tr>
-<tr>
-<td>缺点</td>
-<td>因为AOF记录的内容多，文件只会越来越大，数据恢复也会越来越慢</td>
-</tr>
-</tbody></table>
+<h4 id="线程的生命周期"><a href="#线程的生命周期" class="headerlink" title="线程的生命周期"></a>线程的生命周期</h4><p>当线程被创建并启动以后，它既不是一启动就进入了执行状态，也不是一直处于执行状态。在线程的生命周期中，它要经过 <strong>新建（New）、就绪（Runnable）、运行（Running）、阻塞（Blocked）和死亡（Dead）5种状态</strong>。尤其是当线程启动以后，它不可能一直”霸占”着CPU独自运行，所以CPU需要在多条线程之间切换，于是 线程状态也会多次在运行、阻塞之间切换。</p>
+<p>1.当程序使用new关键字创建了一个线程之后，该线程就处于 <strong>新建状态</strong></p>
+<p>2.当线程对象调用了start()方法之后，该线程处于 <strong>就绪状态</strong>。</p>
+<p>3.当CPU开始调度处于 <strong>就绪状态</strong> 的线程时，此时线程获得了CPU时间片才得以真正开始执行run()方法的线程执行体，则该线程处于 <strong>运行状态</strong>。</p>
+<p>4.处于运行状态的线程在某些情况下，让出CPU并暂时停止自己的运行，进入 <strong>阻塞状态</strong>。</p>
+<p>5.线程会以下三种方式结束就会进入<strong>死亡状态</strong>	</p>
+<p>​	run()或call()方法执行完成，线程正常结束；</p>
+<p>​	线程抛出一个未捕获的Exception或Error；</p>
+<p>​	直接调用该线程stop()方法来结束该线程,—该方法容易导致死锁，通常不推荐使用；</p>
 
     </div>
 
@@ -388,21 +311,18 @@
 
     <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/redis%E6%8C%81%E4%B9%85%E5%8C%96/" rel="tag"># redis持久化</a>
+              <a href="/tags/%E7%BA%BF%E7%A8%8B%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/" rel="tag"># 线程的生命周期</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2024/02/21/threadPool/" rel="prev" title="threadPool">
-                  <i class="fa fa-angle-left"></i> threadPool
+                <a href="/2024/02/21/redisPersistence/" rel="prev" title="redisPersistence">
+                  <i class="fa fa-angle-left"></i> redisPersistence
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2024/02/23/thread/" rel="next" title="threadLifecycle">
-                  threadLifecycle <i class="fa fa-angle-right"></i>
-                </a>
             </div>
           </div>
     </footer>

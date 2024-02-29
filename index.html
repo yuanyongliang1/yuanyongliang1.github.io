@@ -596,7 +596,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2024-02-23 10:12:50" itemprop="dateModified" datetime="2024-02-23T10:12:50+08:00">2024-02-23</time>
+      <time title="修改时间：2024-02-28 15:24:51" itemprop="dateModified" datetime="2024-02-28T15:24:51+08:00">2024-02-28</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -615,7 +615,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>551</span>
+      <span>1k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -650,6 +650,14 @@
 </li>
 </ul>
 <p>在不同的场景下设置核心参数，首先需要判断程序是CPU密集型还是I&#x2F;O密集型，CPU密集型是指CPU使用频率较高，也就是CPU经常计算一些复杂的运算，逻辑处理等，这时候一般吧核心线程数设置为CPU核心数就行，如果是I&#x2F;O密集型，核心线程数是CPU密集型的两倍</p>
+<h4 id="线程池的工作流程"><a href="#线程池的工作流程" class="headerlink" title="线程池的工作流程"></a>线程池的工作流程</h4><p>线程池的工作流程主要包括以下几个步骤：</p>
+<ol>
+<li>创建线程池：首先需要创建一个线程池对象，这可以通过调用相应的线程池构造函数来实现。在创建线程池时，需要指定线程池的大小，即可以容纳的线程数量。</li>
+<li>提交任务：一旦线程池创建成功，就可以向线程池提交任务。任务可以是实现了Runnable接口或Callable接口的对象。线程池会根据任务的类型来执行相应的操作。</li>
+<li>任务调度：线程池会根据任务的提交顺序和线程池的状态来调度任务的执行。当有任务提交时，线程池会选择一个空闲的线程来执行任务。如果所有线程都在执行任务，而且线程池的大小已经达到上限，新提交的任务将会进入等待队列，等待有空闲线程时再执行。</li>
+<li>线程执行任务：线程池中的线程会从等待队列中获取任务并执行。线程执行任务的过程包括调用任务的run方法或call方法，并处理任务的返回结果（如果有）。任务执行完成后，线程会返回线程池，并准备接受新的任务。</li>
+<li>任务完成：当任务执行完成后，线程会返回线程池，并准备接受新的任务。线程池会根据需要继续调度任务的执行，直到线程池被显式关闭。</li>
+</ol>
 
       
     </div>
@@ -1348,7 +1356,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">13 分钟</span>
+    <span title="站点阅读时长">14 分钟</span>
   </span>
 </div>
 <div class="busuanzi-count">
